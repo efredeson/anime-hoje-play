@@ -50,6 +50,7 @@ public final class AHPHomeView extends LinearLayout {
         void openAnime(Anime anime);
         void openAniListAnime(String anilistId,String title);
         void openProfile();
+        void openOriginalCatalog();
     }
 
     private final Host host;
@@ -222,6 +223,11 @@ public final class AHPHomeView extends LinearLayout {
             if(host!=null)host.search("Tensei Shitara Slime Datta Ken");
         });
         root.addView(hero,new LayoutParams(-1,dp(208)));
+        Button nativeLibrary=action("Abrir catálogo original");
+        LayoutParams lpNative=new LayoutParams(-1,dp(44));
+        lpNative.topMargin=dp(15);
+        root.addView(nativeLibrary,lpNative);
+        nativeLibrary.setOnClickListener(v->{if(host!=null)host.openOriginalCatalog();});
         section(root,"Continuar assistindo",host==null?null:host.continueWatching());
         section(root,"Novos episódios",host==null?null:host.recentEpisodes());
         section(root,"Minha lista",host==null?null:host.favorites());
@@ -293,6 +299,11 @@ public final class AHPHomeView extends LinearLayout {
     }
     private void createCatalog(){
         LinearLayout root=scrollRoot();heading(root,"Catálogo");search(root);
+        Button openNative=action("Abrir catálogo do aplicativo");
+        LayoutParams nativeLp=new LayoutParams(-1,dp(46));
+        nativeLp.bottomMargin=dp(12);
+        root.addView(openNative,nativeLp);
+        openNative.setOnClickListener(v->{if(host!=null)host.openOriginalCatalog();});
         section(root,"Animes",host==null?null:host.catalog());
     }
     private void createFavorites(){
