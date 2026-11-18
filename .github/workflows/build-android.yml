@@ -1,0 +1,53 @@
+name: ANIME HOJE PLAY — Android build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-android.yml'
+      - 'app/**'
+      - 'ui/**'
+      - 'settings.gradle'
+      - 'build.gradle'
+      - 'gradle.properties'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Compilar interface e APK de prévia
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Instalar plataformas
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Compilar biblioteca e APK de prévia
+        run: gradle :ui:assembleRelease :app:assembleDebug --no-daemon --stacktrace
+      - name: Publicar APK de prévia (não é o Tomato)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ANIME-HOJE-PLAY-Preview-Debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publicar biblioteca Android
+        uses: actions/upload-artifact@v4
+        with:
+          name: ANIME-HOJE-PLAY-UI-Library
+          path: ui/build/outputs/aar/ui-release.aar
+          if-no-files-found: error
+          retention-days: 14
