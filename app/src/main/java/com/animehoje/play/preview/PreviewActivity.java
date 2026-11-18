@@ -2,6 +2,7 @@ package com.animehoje.play.preview;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import com.animehoje.play.ui.AHPHomeView;
 import java.util.Collections;
@@ -44,7 +45,22 @@ public final class PreviewActivity extends Activity implements AHPHomeView.Host 
             "O catálogo e o player do Tomato ainda não estão conectados.");
     }
     @Override public void openProfile() {
-        notice("O perfil original ainda precisa ser conectado.");
+        try {
+            Intent i=new Intent();
+            i.setClassName(getPackageName(),"com.tomatos.clientapp.ui.ProfileActivity");
+            startActivity(i);
+        }catch(Exception ex){
+            notice("O perfil original não está disponível neste APK de prévia.");
+        }
+    }
+    @Override public void openOriginalCatalog() {
+        try {
+            Intent i=new Intent();
+            i.setClassName(getPackageName(),"com.tomatos.clientapp.HomePageActivity");
+            startActivity(i);
+        }catch(Exception ex){
+            notice("O catálogo original está disponível apenas na versão integrada ao APK Tomato.");
+        }
     }
     private void notice(String message) {
         new AlertDialog.Builder(this)
