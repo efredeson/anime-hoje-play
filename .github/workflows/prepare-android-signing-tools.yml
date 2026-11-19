@@ -1,0 +1,35 @@
+name: Preparar ferramentas Android para assinatura local
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/prepare-android-signing-tools.yml
+
+permissions:
+  contents: read
+
+jobs:
+  package-public-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preparar SDK
+        run: |
+          SDKMANAGER="$(find "${ANDROID_HOME}/cmdline-tools" -type f -path '*/bin/sdkmanager' | head -n 1)"
+          test -n "$SDKMANAGER"
+          "$SDKMANAGER" 'build-tools;35.0.0'
+      - name: Empacotar ferramentas sem segredos
+        run: |
+          mkdir -p export/
+          cp "${ANDROID_HOME}/build-tools/35.0.0/apksigner" export/
+          cp "${ANDROID_HOME}/build-tools/35.0.0/zipalign" export/
+          cp -r "${ANDROID_HOME}/build-tools/35.0.0/lib" export/
+          chmod +x export/apksigner export/zipalign
+          ls -l export/
+      - name: Baixar artefato (ferramentas somente)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-signing-tools-35
+          path: export/
+          retention-days: 2
+          compression-level: 0
