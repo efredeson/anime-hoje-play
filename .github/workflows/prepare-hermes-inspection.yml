@@ -1,0 +1,26 @@
+name: Preparar analisador Hermes (ferramenta pública)
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/prepare-hermes-inspection.yml'
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar release pública do Hermes decompiler
+        run: |
+          curl -fL --retry 3 -o hermes-decomp.tar.gz \
+            https://github.com/SymbioticSec/hermes-decomp/releases/download/v0.2.4/hermes-decomp-v0.2.4-linux-x86_64.tar.gz
+          mkdir -p binary
+          tar -xzf hermes-decomp.tar.gz -C binary
+          find binary -maxdepth 2 -type f
+      - name: Publicar apenas a ferramenta
+        uses: actions/upload-artifact@v4
+        with:
+          name: hermes-decomp-cli-v0-2-4
+          path: binary/
+          retention-days: 1
+          compression-level: 0
