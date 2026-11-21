@@ -1,0 +1,44 @@
+name: Ferramentas DEX para integração local
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/prepare-dex-tools.yml
+permissions:
+  contents: read
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Montar projeto Maven temporário
+        shell: bash
+        run: |
+          cat > pom.xml <<'EOF'
+          <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+            <modelVersion>4.0.0</modelVersion>
+            <groupId>local.toolbox</groupId><artifactId>dex-tools</artifactId><version>1</version>
+            <dependencies>
+              <dependency><groupId>org.smali</groupId><artifactId>smali</artifactId><version>2.5.2</version></dependency>
+              <dependency><groupId>org.smali</groupId><artifactId>baksmali</artifactId><version>2.5.2</version></dependency>
+            </dependencies>
+          </project>
+          EOF
+          mvn -q dependency:copy-dependencies -DincludeScope=runtime -DoutputDirectory=out/lib
+          cat > out/baksmali <<'EOF'
+          #!/bin/bash
+          java -cp "$(dirname "$0")/lib/*" org.jf.baksmali.Main "$@"
+          EOF
+          cat > out/smali <<'EOF'
+          #!/bin/bash
+          java -cp "$(dirname "$0")/lib/*" org.jf.smali.Main "$@"
+          EOF
+          chmod +x out/smali out/baksmali
+          out/smali --help | head -15
+          out/baksmali --help | head -15
+      - name: Publicar somente ferramentas
+        uses: actions/upload-artifact@v4
+        with:
+          name: smali-baksmali-cli-tools
+          path: out/
+          retention-days: 1
+          compression-level: 0
