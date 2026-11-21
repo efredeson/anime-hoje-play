@@ -24,6 +24,8 @@ jobs:
           cp "${ANDROID_HOME}/build-tools/35.0.0/apksigner" export/
           cp "${ANDROID_HOME}/build-tools/35.0.0/zipalign" export/
           cp -r "${ANDROID_HOME}/build-tools/35.0.0/lib" export/
+          cp -r "${ANDROID_HOME}/build-tools/35.0.0/lib64" export/
+          ls -lah export/lib64
           chmod +x export/apksigner export/zipalign
           ls -l export/
       - name: Baixar artefato (ferramentas somente)
